@@ -1,6 +1,6 @@
 # coding: utf-8
-from common.np import *  # import numpy as np (or import cupy as np)
-from common.layers import *
+from common.np import np  # import numpy as np (or import cupy as np)
+from common.layers import Embedding, SigmoidWithLoss, SoftmaxWithLoss, Affine
 from common.functions import softmax, sigmoid
 
 
@@ -51,10 +51,10 @@ class TimeRNN:
         D, H = Wx.shape
 
         self.layers = []
-        hs = np.empty((N, T, H), dtype='f')
+        hs = np.empty((N, T, H), dtype="f")
 
         if not self.stateful or self.h is None:
-            self.h = np.zeros((N, H), dtype='f')
+            self.h = np.zeros((N, H), dtype="f")
 
         for t in range(T):
             layer = RNN(*self.params)
@@ -69,7 +69,7 @@ class TimeRNN:
         N, T, H = dhs.shape
         D, H = Wx.shape
 
-        dxs = np.empty((N, T, D), dtype='f')
+        dxs = np.empty((N, T, D), dtype="f")
         dh = 0
         grads = [0, 0, 0]
         for t in reversed(range(T)):
@@ -95,14 +95,14 @@ class TimeRNN:
 
 class LSTM:
     def __init__(self, Wx, Wh, b):
-        '''
+        """
 
         Parameters
         ----------
         Wx: 入力`x`用の重みパラーメタ（4つ分の重みをまとめる）
         Wh: 隠れ状態`h`用の重みパラメータ（4つ分の重みをまとめる）
         b: バイアス（4つ分のバイアスをまとめる）
-        '''
+        """
         self.params = [Wx, Wh, b]
         self.grads = [np.zeros_like(Wx), np.zeros_like(Wh), np.zeros_like(b)]
         self.cache = None
@@ -114,9 +114,9 @@ class LSTM:
         A = np.dot(x, Wx) + np.dot(h_prev, Wh) + b
 
         f = A[:, :H]
-        g = A[:, H:2*H]
-        i = A[:, 2*H:3*H]
-        o = A[:, 3*H:]
+        g = A[:, H : 2 * H]
+        i = A[:, 2 * H : 3 * H]
+        o = A[:, 3 * H :]
 
         f = sigmoid(f)
         g = np.tanh(g)
@@ -147,7 +147,7 @@ class LSTM:
         di *= i * (1 - i)
         df *= f * (1 - f)
         do *= o * (1 - o)
-        dg *= (1 - g ** 2)
+        dg *= 1 - g ** 2
 
         dA = np.hstack((df, dg, di, do))
 
@@ -181,12 +181,12 @@ class TimeLSTM:
         H = Wh.shape[0]
 
         self.layers = []
-        hs = np.empty((N, T, H), dtype='f')
+        hs = np.empty((N, T, H), dtype="f")
 
         if not self.stateful or self.h is None:
-            self.h = np.zeros((N, H), dtype='f')
+            self.h = np.zeros((N, H), dtype="f")
         if not self.stateful or self.c is None:
-            self.c = np.zeros((N, H), dtype='f')
+            self.c = np.zeros((N, H), dtype="f")
 
         for t in range(T):
             layer = LSTM(*self.params)
@@ -202,7 +202,7 @@ class TimeLSTM:
         N, T, H = dhs.shape
         D = Wx.shape[0]
 
-        dxs = np.empty((N, T, D), dtype='f')
+        dxs = np.empty((N, T, D), dtype="f")
         dh, dc = 0, 0
 
         grads = [0, 0, 0]
@@ -236,7 +236,7 @@ class TimeEmbedding:
         N, T = xs.shape
         V, D = self.W.shape
 
-        out = np.empty((N, T, D), dtype='f')
+        out = np.empty((N, T, D), dtype="f")
         self.layers = []
 
         for t in range(T):
@@ -269,7 +269,7 @@ class TimeAffine:
         N, T, D = x.shape
         W, b = self.params
 
-        rx = x.reshape(N*T, -1)
+        rx = x.reshape(N * T, -1)
         out = np.dot(rx, W) + b
         self.x = x
         return out.reshape(N, T, -1)
@@ -279,8 +279,8 @@ class TimeAffine:
         N, T, D = x.shape
         W, b = self.params
 
-        dout = dout.reshape(N*T, -1)
-        rx = x.reshape(N*T, -1)
+        dout = dout.reshape(N * T, -1)
+        rx = x.reshape(N * T, -1)
 
         db = np.sum(dout, axis=0)
         dW = np.dot(rx.T, dout)
@@ -305,7 +305,7 @@ class TimeSoftmaxWithLoss:
         if ts.ndim == 3:  # 教師ラベルがone-hotベクトルの場合
             ts = ts.argmax(axis=2)
 
-        mask = (ts != self.ignore_label)
+        mask = ts != self.ignore_label
 
         # バッチ分と時系列分をまとめる（reshape）
         xs = xs.reshape(N * T, V)
@@ -357,8 +357,7 @@ class TimeDropout:
 
 
 class TimeBiLSTM:
-    def __init__(self, Wx1, Wh1, b1,
-                 Wx2, Wh2, b2, stateful=False):
+    def __init__(self, Wx1, Wh1, b1, Wx2, Wh2, b2, stateful=False):
         self.forward_lstm = TimeLSTM(Wx1, Wh1, b1, stateful)
         self.backward_lstm = TimeLSTM(Wx2, Wh2, b2, stateful)
         self.params = self.forward_lstm.params + self.backward_lstm.params
@@ -383,6 +382,7 @@ class TimeBiLSTM:
         dxs2 = dxs2[:, ::-1]
         dxs = dxs1 + dxs2
         return dxs
+
 
 # ====================================================================== #
 # 以下に示すレイヤは、本書で説明をおこなっていないレイヤの実装もしくは
@@ -419,9 +419,9 @@ class TimeSigmoidWithLoss:
 
     def backward(self, dout=1):
         N, T = self.xs_shape
-        dxs = np.empty(self.xs_shape, dtype='f')
+        dxs = np.empty(self.xs_shape, dtype="f")
 
-        dout *= 1/T
+        dout *= 1 / T
         for t in range(T):
             layer = self.layers[t]
             dxs[:, t] = layer.backward(dout)
@@ -431,14 +431,14 @@ class TimeSigmoidWithLoss:
 
 class GRU:
     def __init__(self, Wx, Wh, b):
-        '''
+        """
 
         Parameters
         ----------
         Wx: 入力`x`用の重みパラーメタ（3つ分の重みをまとめる）
         Wh: 隠れ状態`h`用の重みパラメータ（3つ分の重みをまとめる）
         b: バイアス（3つ分のバイアスをまとめる）
-        '''
+        """
         self.params = [Wx, Wh, b]
         self.grads = [np.zeros_like(Wx), np.zeros_like(Wh), np.zeros_like(b)]
         self.cache = None
@@ -446,14 +446,14 @@ class GRU:
     def forward(self, x, h_prev):
         Wx, Wh, b = self.params
         H = Wh.shape[0]
-        Wxz, Wxr, Wxh = Wx[:, :H], Wx[:, H:2 * H], Wx[:, 2 * H:]
-        Whz, Whr, Whh = Wh[:, :H], Wh[:, H:2 * H], Wh[:, 2 * H:]
-        bz, br, bh = b[:H], b[H:2 * H], b[2 * H:]
+        Wxz, Wxr, Wxh = Wx[:, :H], Wx[:, H : 2 * H], Wx[:, 2 * H :]
+        Whz, Whr, Whh = Wh[:, :H], Wh[:, H : 2 * H], Wh[:, 2 * H :]
+        bz, br, bh = b[:H], b[H : 2 * H], b[2 * H :]
 
         z = sigmoid(np.dot(x, Wxz) + np.dot(h_prev, Whz) + bz)
         r = sigmoid(np.dot(x, Wxr) + np.dot(h_prev, Whr) + br)
-        h_hat = np.tanh(np.dot(x, Wxh) + np.dot(r*h_prev, Whh) + bh)
-        h_next = (1-z) * h_prev + z * h_hat
+        h_hat = np.tanh(np.dot(x, Wxh) + np.dot(r * h_prev, Whh) + bh)
+        h_next = (1 - z) * h_prev + z * h_hat
 
         self.cache = (x, h_prev, z, r, h_hat)
 
@@ -462,12 +462,12 @@ class GRU:
     def backward(self, dh_next):
         Wx, Wh, b = self.params
         H = Wh.shape[0]
-        Wxz, Wxr, Wxh = Wx[:, :H], Wx[:, H:2 * H], Wx[:, 2 * H:]
-        Whz, Whr, Whh = Wh[:, :H], Wh[:, H:2 * H], Wh[:, 2 * H:]
+        Wxz, Wxr, Wxh = Wx[:, :H], Wx[:, H : 2 * H], Wx[:, 2 * H :]
+        Whz, Whr, Whh = Wh[:, :H], Wh[:, H : 2 * H], Wh[:, 2 * H :]
         x, h_prev, z, r, h_hat = self.cache
 
-        dh_hat =dh_next * z
-        dh_prev = dh_next * (1-z)
+        dh_hat = dh_next * z
+        dh_prev = dh_next * (1 - z)
 
         # tanh
         dt = dh_hat * (1 - h_hat ** 2)
@@ -480,7 +480,7 @@ class GRU:
 
         # update gate(z)
         dz = dh_next * h_hat - dh_next * h_prev
-        dt = dz * z * (1-z)
+        dt = dz * z * (1 - z)
         dbz = np.sum(dt, axis=0)
         dWhz = np.dot(h_prev.T, dt)
         dh_prev += np.dot(dt, Whz.T)
@@ -489,7 +489,7 @@ class GRU:
 
         # rest gate(r)
         dr = dhr * h_prev
-        dt = dr * r * (1-r)
+        dt = dr * r * (1 - r)
         dbr = np.sum(dt, axis=0)
         dWhr = np.dot(h_prev.T, dt)
         dh_prev += np.dot(dt, Whr.T)
@@ -520,10 +520,10 @@ class TimeGRU:
         N, T, D = xs.shape
         H = Wh.shape[0]
         self.layers = []
-        hs = np.empty((N, T, H), dtype='f')
+        hs = np.empty((N, T, H), dtype="f")
 
         if not self.stateful or self.h is None:
-            self.h = np.zeros((N, H), dtype='f')
+            self.h = np.zeros((N, H), dtype="f")
 
         for t in range(T):
             layer = GRU(*self.params)
@@ -537,7 +537,7 @@ class TimeGRU:
         N, T, H = dhs.shape
         D = Wx.shape[0]
 
-        dxs = np.empty((N, T, D), dtype='f')
+        dxs = np.empty((N, T, D), dtype="f")
 
         dh = 0
         grads = [0, 0, 0]
@@ -584,9 +584,9 @@ class Simple_TimeSoftmaxWithLoss:
     def backward(self, dout=1):
         layers, xs = self.cache
         N, T, V = xs.shape
-        dxs = np.empty(xs.shape, dtype='f')
+        dxs = np.empty(xs.shape, dtype="f")
 
-        dout *= 1/T
+        dout *= 1 / T
         for t in range(T):
             layer = layers[t]
             dxs[:, t, :] = layer.backward(dout)
@@ -605,7 +605,7 @@ class Simple_TimeAffine:
         D, M = self.W.shape
 
         self.layers = []
-        out = np.empty((N, T, M), dtype='f')
+        out = np.empty((N, T, M), dtype="f")
         for t in range(T):
             layer = Affine(self.W, self.b)
             out[:, t, :] = layer.forward(xs[:, t, :])
@@ -617,7 +617,7 @@ class Simple_TimeAffine:
         N, T, M = dout.shape
         D, M = self.W.shape
 
-        dxs = np.empty((N, T, D), dtype='f')
+        dxs = np.empty((N, T, D), dtype="f")
         self.dW, self.db = 0, 0
         for t in range(T):
             layer = self.layers[t]
@@ -627,7 +627,3 @@ class Simple_TimeAffine:
             self.db += layer.db
 
         return dxs
-
-
-
-
