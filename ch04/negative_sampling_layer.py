@@ -1,7 +1,8 @@
 # coding: utf-8
 import sys
-sys.path.append('..')
-from common.np import *  # import numpy as np
+
+sys.path.append("..")
+from common.np import np, GPU  # import numpy as np
 from common.layers import Embedding, SigmoidWithLoss
 import collections
 
@@ -65,8 +66,9 @@ class UnigramSampler:
         else:
             # GPU(cupy）で計算するときは、速度を優先
             # 負例にターゲットが含まれるケースがある
-            negative_sample = np.random.choice(self.vocab_size, size=(batch_size, self.sample_size),
-                                               replace=True, p=self.word_p)
+            negative_sample = np.random.choice(
+                self.vocab_size, size=(batch_size, self.sample_size), replace=True, p=self.word_p
+            )
 
         return negative_sample
 

@@ -1,7 +1,8 @@
 # coding: utf-8
 import sys
-sys.path.append('..')  # 親ディレクトリのファイルをインポートするための設定
-from common.layers import *
+
+sys.path.append("..")  # 親ディレクトリのファイルをインポートするための設定
+from common.layers import np, Embedding
 from ch04.negative_sampling_layer import NegativeSamplingLoss
 
 
@@ -11,8 +12,8 @@ class SkipGram:
         rn = np.random.randn
 
         # 重みの初期化
-        W_in = 0.01 * rn(V, H).astype('f')
-        W_out = 0.01 * rn(V, H).astype('f')
+        W_in = 0.01 * rn(V, H).astype("f")
+        W_out = 0.01 * rn(V, H).astype("f")
 
         # レイヤの生成
         self.in_layer = Embedding(W_in)
