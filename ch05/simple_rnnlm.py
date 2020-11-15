@@ -1,8 +1,9 @@
 # coding: utf-8
 import sys
-sys.path.append('..')
+
+sys.path.append("..")
 import numpy as np
-from common.time_layers import *
+from common.time_layers import TimeEmbedding, TimeRNN, TimeAffine, TimeSoftmaxWithLoss
 
 
 class SimpleRnnlm:
@@ -11,18 +12,18 @@ class SimpleRnnlm:
         rn = np.random.randn
 
         # 重みの初期化
-        embed_W = (rn(V, D) / 100).astype('f')
-        rnn_Wx = (rn(D, H) / np.sqrt(D)).astype('f')
-        rnn_Wh = (rn(H, H) / np.sqrt(H)).astype('f')
-        rnn_b = np.zeros(H).astype('f')
-        affine_W = (rn(H, V) / np.sqrt(H)).astype('f')
-        affine_b = np.zeros(V).astype('f')
+        embed_W = (rn(V, D) / 100).astype("f")
+        rnn_Wx = (rn(D, H) / np.sqrt(D)).astype("f")
+        rnn_Wh = (rn(H, H) / np.sqrt(H)).astype("f")
+        rnn_b = np.zeros(H).astype("f")
+        affine_W = (rn(H, V) / np.sqrt(H)).astype("f")
+        affine_b = np.zeros(V).astype("f")
 
         # レイヤの生成
         self.layers = [
             TimeEmbedding(embed_W),
             TimeRNN(rnn_Wx, rnn_Wh, rnn_b, stateful=True),
-            TimeAffine(affine_W, affine_b)
+            TimeAffine(affine_W, affine_b),
         ]
         self.loss_layer = TimeSoftmaxWithLoss()
         self.rnn_layer = self.layers[1]
