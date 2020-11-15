@@ -31,11 +31,7 @@ class TwoLayerNet:
         b2 = np.random.randn(O)
 
         # レイヤの生成
-        self.layers = [
-            Affine(W1, b1),
-            Sigmoid(),
-            Affine(W2, b2)
-        ]
+        self.layers = [Affine(W1, b1), Sigmoid(), Affine(W2, b2)]
 
         # すべての重みをリストにまとめる
         self.params = []

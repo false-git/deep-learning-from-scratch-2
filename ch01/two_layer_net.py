@@ -1,6 +1,7 @@
 # coding: utf-8
 import sys
-sys.path.append('..')  # 親ディレクトリのファイルをインポートするための設定
+
+sys.path.append("..")  # 親ディレクトリのファイルをインポートするための設定
 import numpy as np
 from common.layers import Affine, Sigmoid, SoftmaxWithLoss
 
@@ -16,11 +17,7 @@ class TwoLayerNet:
         b2 = np.zeros(O)
 
         # レイヤの生成
-        self.layers = [
-            Affine(W1, b1),
-            Sigmoid(),
-            Affine(W2, b2)
-        ]
+        self.layers = [Affine(W1, b1), Sigmoid(), Affine(W2, b2)]
         self.loss_layer = SoftmaxWithLoss()
 
         # すべての重みと勾配をリストにまとめる

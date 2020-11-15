@@ -1,6 +1,7 @@
 # coding: utf-8
 import sys
-sys.path.append('..')  # 親ディレクトリのファイルをインポートするための設定
+
+sys.path.append("..")  # 親ディレクトリのファイルをインポートするための設定
 import numpy as np
 from common.optimizer import SGD
 from dataset import spiral
@@ -32,8 +33,8 @@ for epoch in range(max_epoch):
     t = t[idx]
 
     for iters in range(max_iters):
-        batch_x = x[iters*batch_size:(iters+1)*batch_size]
-        batch_t = t[iters*batch_size:(iters+1)*batch_size]
+        batch_x = x[iters * batch_size : (iters + 1) * batch_size]
+        batch_t = t[iters * batch_size : (iters + 1) * batch_size]
 
         # 勾配を求め、パラメータを更新
         loss = model.forward(batch_x, batch_t)
@@ -44,37 +45,36 @@ for epoch in range(max_epoch):
         loss_count += 1
 
         # 定期的に学習経過を出力
-        if (iters+1) % 10 == 0:
+        if (iters + 1) % 10 == 0:
             avg_loss = total_loss / loss_count
-            print('| epoch %d |  iter %d / %d | loss %.2f'
-                  % (epoch + 1, iters + 1, max_iters, avg_loss))
+            print("| epoch %d |  iter %d / %d | loss %.2f" % (epoch + 1, iters + 1, max_iters, avg_loss))
             loss_list.append(avg_loss)
             total_loss, loss_count = 0, 0
 
 
 # 学習結果のプロット
-plt.plot(np.arange(len(loss_list)), loss_list, label='train')
-plt.xlabel('iterations (x10)')
-plt.ylabel('loss')
+plt.plot(np.arange(len(loss_list)), loss_list, label="train")
+plt.xlabel("iterations (x10)")
+plt.ylabel("loss")
 plt.show()
 
 # 境界領域のプロット
 h = 0.001
-x_min, x_max = x[:, 0].min() - .1, x[:, 0].max() + .1
-y_min, y_max = x[:, 1].min() - .1, x[:, 1].max() + .1
+x_min, x_max = x[:, 0].min() - 0.1, x[:, 0].max() + 0.1
+y_min, y_max = x[:, 1].min() - 0.1, x[:, 1].max() + 0.1
 xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
 X = np.c_[xx.ravel(), yy.ravel()]
 score = model.predict(X)
 predict_cls = np.argmax(score, axis=1)
 Z = predict_cls.reshape(xx.shape)
 plt.contourf(xx, yy, Z)
-plt.axis('off')
+plt.axis("off")
 
 # データ点のプロット
 x, t = spiral.load_data()
 N = 100
 CLS_NUM = 3
-markers = ['o', 'x', '^']
+markers = ["o", "x", "^"]
 for i in range(CLS_NUM):
-    plt.scatter(x[i*N:(i+1)*N, 0], x[i*N:(i+1)*N, 1], s=40, marker=markers[i])
+    plt.scatter(x[i * N : (i + 1) * N, 0], x[i * N : (i + 1) * N, 1], s=40, marker=markers[i])
 plt.show()
