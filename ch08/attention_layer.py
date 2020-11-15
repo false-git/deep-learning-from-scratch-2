@@ -1,7 +1,8 @@
 # coding: utf-8
 import sys
-sys.path.append('..')
-from common.np import *  # import numpy as np
+
+sys.path.append("..")
+from common.np import np  # import numpy as np
 from common.layers import Softmax
 
 
@@ -13,7 +14,7 @@ class WeightSum:
     def forward(self, hs, a):
         N, T, H = hs.shape
 
-        ar = a.reshape(N, T, 1)#.repeat(T, axis=1)
+        ar = a.reshape(N, T, 1)  # .repeat(T, axis=1)
         t = hs * ar
         c = np.sum(t, axis=1)
 
@@ -40,7 +41,7 @@ class AttentionWeight:
     def forward(self, hs, h):
         N, T, H = hs.shape
 
-        hr = h.reshape(N, 1, H)#.repeat(T, axis=1)
+        hr = h.reshape(N, 1, H)  # .repeat(T, axis=1)
         t = hs * hr
         s = np.sum(t, axis=2)
         a = self.softmax.forward(s)
@@ -95,7 +96,7 @@ class TimeAttention:
 
         for t in range(T):
             layer = Attention()
-            out[:, t, :] = layer.forward(hs_enc, hs_dec[:,t,:])
+            out[:, t, :] = layer.forward(hs_enc, hs_dec[:, t, :])
             self.layers.append(layer)
             self.attention_weights.append(layer.attention_weight)
 
@@ -110,6 +111,6 @@ class TimeAttention:
             layer = self.layers[t]
             dhs, dh = layer.backward(dout[:, t, :])
             dhs_enc += dhs
-            dhs_dec[:,t,:] = dh
+            dhs_dec[:, t, :] = dh
 
         return dhs_enc, dhs_dec
