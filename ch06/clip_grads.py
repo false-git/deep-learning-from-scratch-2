@@ -20,6 +20,6 @@ def clip_grads(grads, max_norm):
             grad *= rate
 
 
-print('before:', dW1.flatten())
+print("before:", dW1.flatten())
 clip_grads(grads, max_norm)
-print('after:', dW1.flatten())
+print("after:", dW1.flatten())

@@ -1,7 +1,9 @@
 # coding: utf-8
 import sys
-sys.path.append('..')
+
+sys.path.append("..")
 from common import config
+
 # GPUで実行する場合は下記のコメントアウトを消去（要cupy）
 # ==============================================
 # config.GPU = True
@@ -24,9 +26,9 @@ max_grad = 0.25
 dropout = 0.5
 
 # 学習データの読み込み
-corpus, word_to_id, id_to_word = ptb.load_data('train')
-corpus_val, _, _ = ptb.load_data('val')
-corpus_test, _, _ = ptb.load_data('test')
+corpus, word_to_id, id_to_word = ptb.load_data("train")
+corpus_val, _, _ = ptb.load_data("val")
+corpus_test, _, _ = ptb.load_data("test")
 
 if config.GPU:
     corpus = to_gpu(corpus)
@@ -41,14 +43,13 @@ model = BetterRnnlm(vocab_size, wordvec_size, hidden_size, dropout)
 optimizer = SGD(lr)
 trainer = RnnlmTrainer(model, optimizer)
 
-best_ppl = float('inf')
+best_ppl = float("inf")
 for epoch in range(max_epoch):
-    trainer.fit(xs, ts, max_epoch=1, batch_size=batch_size,
-                time_size=time_size, max_grad=max_grad)
+    trainer.fit(xs, ts, max_epoch=1, batch_size=batch_size, time_size=time_size, max_grad=max_grad)
 
     model.reset_state()
     ppl = eval_perplexity(model, corpus_val)
-    print('valid perplexity: ', ppl)
+    print("valid perplexity: ", ppl)
 
     if best_ppl > ppl:
         best_ppl = ppl
@@ -58,10 +59,10 @@ for epoch in range(max_epoch):
         optimizer.lr = lr
 
     model.reset_state()
-    print('-' * 50)
+    print("-" * 50)
 
 
 # テストデータでの評価
 model.reset_state()
 ppl_test = eval_perplexity(model, corpus_test)
-print('test perplexity: ', ppl_test)
+print("test perplexity: ", ppl_test)
