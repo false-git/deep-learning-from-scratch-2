@@ -1,6 +1,7 @@
 # coding: utf-8
 import sys
-sys.path.append('..')  # 親ディレクトリのファイルをインポートするための設定
+
+sys.path.append("..")  # 親ディレクトリのファイルをインポートするための設定
 from common.trainer import Trainer
 from common.optimizer import Adam
 from simple_cbow import SimpleCBOW
@@ -12,7 +13,7 @@ hidden_size = 5
 batch_size = 3
 max_epoch = 1000
 
-text = 'You say goodbye and I say hello.'
+text = "You say goodbye and I say hello."
 corpus, word_to_id, id_to_word = preprocess(text)
 
 vocab_size = len(word_to_id)
