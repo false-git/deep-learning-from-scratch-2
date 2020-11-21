@@ -1,5 +1,7 @@
 # coding: utf-8
 import sys
+from contextlib import contextmanager
+import time
 
 sys.path.append("..")
 import os
@@ -301,3 +303,15 @@ def normalize(x):
         s = np.sqrt((x * x).sum())
         x /= s
     return x
+
+
+@contextmanager
+def timer(name):
+    """時間を計測して表示する.
+
+    Args:
+        name: 処理の名前
+    """
+    t0: float = time.perf_counter()
+    yield
+    print(f"[{name}] done in {time.perf_counter() - t0:.1f} s")
