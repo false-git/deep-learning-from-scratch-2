@@ -1,3 +1,7 @@
 .venv
 __pycache__
 poetry.lock
+ptb.train.npy
+ptb.train.txt
+ptb.vocab.pkl
+*.pkl.xz
