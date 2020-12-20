@@ -3,5 +3,7 @@ __pycache__
 poetry.lock
 ptb.train.npy
 ptb.train.txt
+ptb.test.npy
+ptb.test.txt
 ptb.vocab.pkl
 *.pkl.xz
